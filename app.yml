@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nodeapp
+  name: nodeapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: nodeapp
+  template:
+    metadata:
+      labels:
+        name: nodeapp
+    spec:
+      containers:
+      - image: registry/nodeapp
+        imagePullPolicy: IfNotPresent
+        name: nodeapp
+        env:
+        - name: HTTP_PORT
+          value: "80"
+        - name: MYSQL_HOST
+          value: "mysql"
+        - name: MYSQL_PORT
+          value: "3306"
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nodeapp
+  name: nodeapp
+spec:
+  ports:
+  - nodePort: 31000
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    name: nodeapp
+  type: NodePort
