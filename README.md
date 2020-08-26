@@ -24,10 +24,11 @@ $ kubectl scale --replicas=10 deployment/nodeapp
 
 2) Реализация данной задачи довольно сильно зависит от фактической реализации кубернетиса и того, как и где он был развернут. В случае, скажем, OpenShift/OKD есть встроенный ELK-стек, который можно включить при развертывании (либо подключить позднее) стандартным плейбуком. Но если у нас, предположим, "голый" кубернетис, поднятый kubeadm, то добавить его можно с помощью `helm` (предполагаем, что он уже установлен) примерно следующим образом:
 ```console
-helm repo add elastic https://helm.elastic.co
-helm install elasticsearch elastic/elasticsearch
-helm install kibana elastic/kibana
-helm install filebeat elastic/filebeat
+$ helm repo add elastic https://helm.elastic.co
+$ helm repo update
+$ helm install elasticsearch elastic/elasticsearch
+$ helm install kibana elastic/kibana
+$ helm install filebeat elastic/filebeat
 ```
 После этого можно будет опубликовать каким-либо (через NodePort, либо Ingress) образом консоль Kibana и смотреть прилетающие с подов логи.
 
@@ -35,9 +36,10 @@ helm install filebeat elastic/filebeat
 
 3) Это, опять же, зависит от реализации кубернетиса. В OpenShift/OKD, опять же, уже есть встроенный стек `prometheus-operator` (в который входят, собственно, Prometheus, AlertManager и Grafana), который ставится и настраивается по умолчанию на весь кластер. Опять же, в случае "голого" кубернетиса, поднятого kubeadm, поднять `prometheus-operator` можно примерно следующим образом:
 ```console
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
-helm install metrics-server stable/metrics-server --set args[0]=--kubelet-insecure-tls
-helm install prometheus stable/prometheus-operator
+$ helm repo add stable https://kubernetes-charts.storage.googleapis.com
+$ helm repo update
+$ helm install metrics-server stable/metrics-server --set args[0]=--kubelet-insecure-tls
+$ helm install prometheus stable/prometheus-operator
 ```
 *Замечание: параметр `--set args[0]=--kubelet-insecure-tls` актуален только для инсталляций с использованием kubeadm!*
 Каким образом использовать данный стек - довольно сильно зависит от инфраструктуры. Можно, скажем, настроить интеграцию Prometheus с Zabbix (что [официально поддерживается](https://www.zabbix.com/integrations/prometheus)), можно, как вариант, настроить телеграм бота (например, вот [такого](https://github.com/metalmatze/alertmanager-bot)) на определенные события AlertManager. К сожалению, задача поставлена достаточно широко и размыто, поэтому довольно сложно привести какие-то конкретные реализации. Каких-то фактических примеров реализации из собственного опыта я в данном случае, к сожалению, не смогу привести в силу отсутствия такового опыта.
